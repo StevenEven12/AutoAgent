@@ -1,0 +1,159 @@
+# AUTO AGENT
+
+## Overview
+AUTO AGENT is a Twitter-integrated AI agent that interacts with users through Twitter mentions. When users tweet specific commands at the agent, it responds by deploying pump fun tokens on the Ethereum blockchain or providing information about its commands.
+
+## Features
+- **Deploy Pump Fun Tokens**: Users can request AUTO AGENT to deploy pump fun tokens on the blockchain.
+- **Interactive Commands**: Users can interact with AUTO AGENT by tweeting specific commands.
+- **Automated Twitter Replies**: The agent replies directly to users on Twitter with transaction details or help messages.
+
+---
+
+## How it Works
+
+1. **User Interaction**: Users tweet at AUTO AGENT using the following format:
+   ```
+   @AUTO_AGENT deploy [agent_name] look [agent_look]
+   ```
+   AUTO AGENT parses this tweet, extracts the agent name and look, and then initiates a blockchain transaction to deploy the token.
+
+2. **Info Command**: Users can also request information on how to interact with the agent by tweeting:
+   ```
+   @AUTO_AGENT info
+   ```
+   The agent responds with a list of available commands.
+
+3. **Response**: After the pump fun token is deployed, AUTO AGENT replies to the user with the transaction hash and other relevant details.
+
+---
+
+## Commands
+- **Deploy Agent**:
+  ```
+  @AUTO_AGENT deploy [agent_name] look [agent_look]
+  ```
+  - `agent_name`: The name of the agent to deploy.
+  - `agent_look`: The look or style of the agent to deploy.
+
+- **Info**:
+  ```
+  @AUTO_AGENT info
+  ```
+  - Shows the list of available commands.
+
+---
+
+## Environment Variables
+The following environment variables must be set in a `.env` file:
+```
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
+TWITTER_ACCESS_TOKEN=your_twitter_access_token
+TWITTER_ACCESS_TOKEN_SECRET=your_twitter_access_token_secret
+WEB3_PROVIDER_URL=your_web3_provider_url
+PRIVATE_KEY=your_private_key
+ACCOUNT_ADDRESS=your_ethereum_account_address
+TOKEN_CONTRACT_ADDRESS=your_token_contract_address
+```
+
+---
+
+## Setup
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/your-username/auto-agent.git
+   cd auto-agent
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Set up your `.env` file with the required credentials.
+4. Run the script:
+   ```bash
+   python auto_agent_pump.py
+   ```
+
+---
+
+## Requirements
+- Python 3.7+
+- Tweepy for Twitter API integration
+- Web3.py for Ethereum blockchain interaction
+- dotenv for environment variable management
+
+Install all dependencies using the following command:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## File Structure
+```
+📁 auto-agent
+|-- 📄 auto_agent_pump.py  # Main script for the agent
+|-- 📄 README.md           # This file
+|-- 📄 .env                # Environment variables (not included in repo)
+|-- 📄 requirements.txt    # Required Python dependencies
+```
+
+---
+
+## Example Usage
+### Deploy a Pump Fun Token
+User tweets:
+```
+@AUTO_AGENT deploy CyberPunk look Neon
+```
+The agent extracts "CyberPunk" as the name and "Neon" as the look. It then deploys a new token and replies with the transaction details:
+```
+🎉 Pump Fun Token Deployed!
+
+Agent Name: CyberPunk
+Agent Look: Neon
+TX: 0xabc123...
+```
+
+### Request Info
+User tweets:
+```
+@AUTO_AGENT info
+```
+The agent replies with a list of available commands:
+```
+🤖 AUTO AGENT here!
+Commands you can use:
+- deploy [name] look [style] to create a new agent.
+- info to see this help message.
+```
+
+---
+
+## Security
+- **Private Keys**: Keep your `.env` file secure and never share your private keys.
+- **Rate Limits**: Be aware of Twitter's rate limits to avoid being temporarily blocked.
+
+---
+
+## Troubleshooting
+- **Environment Variables Not Loaded**: Ensure your `.env` file is properly set up and in the same directory as `auto_agent_pump.py`.
+- **Twitter API Errors**: Check your Twitter API credentials and ensure they are correct.
+- **Blockchain Errors**: Ensure your Ethereum node provider URL is working and that you have sufficient gas for transactions.
+
+---
+
+## License
+This project is licensed under the MIT License.
+
+---
+
+## Contributing
+Feel free to fork this project and submit a pull request with your improvements!
+
+---
+
+## Author
+Created by [Your Name]. For any questions or issues, please reach out to [your email or social media handle].
+
