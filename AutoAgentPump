@@ -1,0 +1,95 @@
+import os
+import tweepy
+import requests
+from web3 import Web3
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
+
+# Twitter API credentials
+TWITTER_API_KEY = os.getenv('TWITTER_API_KEY')
+TWITTER_API_SECRET = os.getenv('TWITTER_API_SECRET')
+TWITTER_ACCESS_TOKEN = os.getenv('TWITTER_ACCESS_TOKEN')
+TWITTER_ACCESS_TOKEN_SECRET = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+
+# Ethereum blockchain credentials
+WEB3_PROVIDER_URL = os.getenv('WEB3_PROVIDER_URL')
+PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+ACCOUNT_ADDRESS = os.getenv('ACCOUNT_ADDRESS')
+
+# Contract details
+TOKEN_CONTRACT_ADDRESS = os.getenv('TOKEN_CONTRACT_ADDRESS')
+ABI = [...]  # Replace with your contract's ABI
+
+# Connect to the Ethereum blockchain
+web3 = Web3(Web3.HTTPProvider(WEB3_PROVIDER_URL))
+token_contract = web3.eth.contract(address=Web3.toChecksumAddress(TOKEN_CONTRACT_ADDRESS), abi=ABI)
+
+# Authenticate to the Twitter API
+auth = tweepy.OAuth1UserHandler(TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
+twitter_api = tweepy.API(auth)
+
+# Function to deploy a pump fun token
+def deploy_pump_fun_token(agent_name, agent_look):
+    try:
+        transaction = token_contract.functions.deployToken(agent_name, agent_look).buildTransaction({
+            'from': ACCOUNT_ADDRESS,
+            'nonce': web3.eth.getTransactionCount(ACCOUNT_ADDRESS),
+            'gas': 2000000,
+            'gasPrice': web3.toWei('50', 'gwei')
+        })
+
+        signed_txn = web3.eth.account.signTransaction(transaction, private_key=PRIVATE_KEY)
+        tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        tx_receipt = web3.eth.waitForTransactionReceipt(tx_hash)
+
+        return tx_receipt
+    except Exception as e:
+        print(f"Error deploying pump fun token: {e}")
+        return None
+
+# Stream listener to detect mentions of the AUTO AGENT Twitter account
+class AutoAgentListener(tweepy.StreamListener):
+    def on_status(self, status):
+        try:
+            tweet_text = status.text
+            user_screen_name = status.user.screen_name
+            
+            # Check if the tweet mentions AUTO AGENT and follows the command format
+            if "@AUTO_AGENT" in tweet_text and "deploy" in tweet_text:
+                
+                # Extract the agent name and look from the tweet
+                parts = tweet_text.split(' ')
+                try:
+                    agent_name_index = parts.index("deploy") + 1
+                    agent_look_index = parts.index("look") + 1
+                    agent_name = parts[agent_name_index]
+                    agent_look = parts[agent_look_index]
+                except (ValueError, IndexError) as e:
+                    print(f"Failed to parse agent name or look from tweet: {e}")
+                    return
+
+                # Deploy the pump fun token
+                tx_receipt = deploy_pump_fun_token(agent_name, agent_look)
+
+                if tx_receipt:
+                    response_message = f"🎉 Pump Fun Token Deployed! \n\nAgent Name: {agent_name} \nAgent Look: {agent_look} \nTX: {tx_receipt['transactionHash'].hex()}"
+                else:
+                    response_message = "🚫 Failed to deploy Pump Fun Token. Please try again."
+
+                # Reply to the user on Twitter
+                twitter_api.update_status(status=f"@{user_screen_name} {response_message}", in_reply_to_status_id=status.id)
+        except Exception as e:
+            print(f"Error handling tweet: {e}")
+
+    def on_error(self, status_code):
+        if status_code == 420:
+            # Returning False in on_error disconnects the stream
+            return False
+
+# Start listening for tweets mentioning AUTO AGENT
+if __name__ == "__main__":
+    listener = AutoAgentListener()
+    stream = tweepy.Stream(auth=twitter_api.auth, listener=listener)
+    stream.filter(track=["@AUTO_AGENT"])
